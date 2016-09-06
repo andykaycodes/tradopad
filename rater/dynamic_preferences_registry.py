@@ -1,7 +1,7 @@
 # blog/dynamic_preferences_registry.py
 
 from dynamic_preferences.types import StringPreference, ChoicePreference, IntegerPreference, Section
-from dynamic_preferences import global_preferences_registry
+from dynamic_preferences.registries import global_preferences_registry
 
 preferences_section = Section('rater')
 

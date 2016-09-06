@@ -1,25 +1,26 @@
 import random
 from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.views.decorators.csrf import csrf_exempt
 from django.template import RequestContext, loader
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect, render
-from dynamic_preferences import global_preferences_registry
+from dynamic_preferences.registries import global_preferences_registry
 from django.core.cache import cache
 from .models import Rater, Segment, Rating
 
 global_preferences = global_preferences_registry.manager()
 
-
+@csrf_exempt
 def index(request):
     template = loader.get_template('rater/index.html')
     return HttpResponse(template.render(RequestContext(request)))
 
-
+@csrf_exempt
 def finish(request):
     template = loader.get_template('rater/finish.html')
     return HttpResponse(template.render(RequestContext(request)))
 
-
+@csrf_exempt
 def access(request):
     rater, created = Rater.objects.get_or_create(email=request.POST['email'])
     if created:
@@ -38,14 +39,14 @@ def access(request):
     response.set_cookie('rater_pk', rater.pk)
     return response
 
-
+@csrf_exempt
 def submit_rating(request, segment_id):
     rater = get_object_or_404(Rater, pk=request.COOKIES['rater_pk'])
     Rating.objects.create(rater_id=rater.pk, segment_id=segment_id, rating=request.POST['rating'])
     response = HttpResponseRedirect(reverse('rater:rate'))
     return response
 
-
+@csrf_exempt
 def rate(request):
     rater = get_object_or_404(Rater, pk=request.COOKIES['rater_pk'])
     total_segments = Segment.objects.filter(batch_id=rater.batch_id).count()
